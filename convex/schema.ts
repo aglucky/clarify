@@ -6,9 +6,10 @@ export default defineSchema({
         link: v.string(),
         type: v.union(
             v.literal("rss"),
+            v.literal("medium"),
             v.literal("other")
         ),
-        contentLocation: v.string()
+        name: v.optional(v.string())
     }),
 
     blogs: defineTable({
@@ -17,6 +18,9 @@ export default defineSchema({
         link: v.string(),
         description: v.string(),
         pubDate: v.string(),
+        content: v.string(),
+        author: v.optional(v.string()),
+        categories: v.optional(v.array(v.string())),
     }),
 
 });
