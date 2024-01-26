@@ -15,6 +15,7 @@ import type {
   FunctionReference,
 } from "convex/server";
 import type * as actions from "../actions.js";
+import type * as blogs from "../blogs.js";
 import type * as sources from "../sources.js";
 
 /**
@@ -27,6 +28,7 @@ import type * as sources from "../sources.js";
  */
 declare const fullApi: ApiFromModules<{
   actions: typeof actions;
+  blogs: typeof blogs;
   sources: typeof sources;
 }>;
 export declare const api: FilterApi<

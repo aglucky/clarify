@@ -5,25 +5,26 @@ import { v } from "convex/values";
 import { api } from "../convex/_generated/api";
 import Parser from 'rss-parser';
 import { Doc } from "./_generated/dataModel";
-import { BlogType } from "../types"
-
+import { BlogSchema, BlogType, validateBlog } from "../types"
 import { parse } from 'node-html-parser';
+import { Sources } from "./schema";
 
-
-
-
-export const updateSource = action({
-    args: { sourceId: v.id("sources") },
+export const addNewBlogsToSource = action({
+    // args: { source: Sources.doc },
+    args: { source: v.id("sources") },
     handler: async (ctx, args) => {
-        const source = await ctx.runQuery(api.sources.getSource, { id: args.sourceId });
-
-        if (!source) {
-            return "failure";
-        }
+        // const source = args.source
+        const source = await ctx.runQuery(api.sources.getSource, { id: args.source })
+        if (!source) return "fail"
 
         const blogs = await parseSource(source);
-        console.log(blogs[0])
-
+        const newBlogs = blogs.filter(async (blog) => await ctx.runQuery(api.blogs.checkIfNewBlog, { blog: blog }));
+        // console.log(newBlogs)
+        const newBlogsWithContent = await Promise.all(newBlogs.map(async (blog) => {
+            return blog.content ? blog : { ...blog, content: await parseBlog(blog.link!) };
+        }));
+        console.log(newBlogsWithContent)
+        await Promise.all(newBlogsWithContent.map(async (blog) => await ctx.runMutation(api.blogs.addZodBlog, { blog: blog })))
         return "success";
     },
 });
@@ -45,7 +46,8 @@ async function getMediumArticles(source: Doc<"sources">): Promise<BlogType[]> {
     let parser = new Parser();
     let feed = await parser.parseURL(source.link);
     console.log(feed.title);
-    return feed.items.map(item => ({
+
+    return feed.items.map(item => validateBlog({
         link: item.link,
         source: source._id,
         title: item.title,
@@ -53,25 +55,22 @@ async function getMediumArticles(source: Doc<"sources">): Promise<BlogType[]> {
         pubDate: new Date(item.pubDate || "").toISOString(),
         content: item['content:encoded'],
         categories: item.categories
-    }));
+    })).filter((blog): blog is BlogType => blog !== null);
 }
 
 async function getRSSArticles(source: Doc<"sources">): Promise<BlogType[]> {
     let parser = new Parser();
     let feed = await parser.parseURL(source.link);
-    const blogPromises = feed.items.slice(0,1).map(async (item) => {
-        return {
-            link: item.link,
-            source: source._id,
-            title: item.title,
-            description: item.content,
-            pubDate: new Date(item.pubDate || "").toISOString(),
-            content: await parseBlog(item.link || ""),
-            categories: item.categories || []
-        };
-    });
-
-    return Promise.all(blogPromises);
+    console.log(feed.title);
+    return feed.items.map(item => validateBlog({
+        link: item.link,
+        source: source._id,
+        title: item.title,
+        description: item.content,
+        pubDate: new Date(item.pubDate || "").toISOString(),
+        content: undefined,
+        categories: item.categories || []
+    })).filter((blog): blog is BlogType => blog !== null);
 }
 
 function parseHTMLForCSSSelector(html: string, cssSelector: string) {
@@ -81,9 +80,6 @@ function parseHTMLForCSSSelector(html: string, cssSelector: string) {
 }
 
 async function parseBlog(blogLink: string): Promise<string> {
-    if (blogLink === "") {
-        return "";
-    }
     const response = await fetch(blogLink);
     const data = await response.text();
 
