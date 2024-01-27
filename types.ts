@@ -1,16 +1,18 @@
 import { zid } from 'convex-helpers/server/zod.js';
 import { z } from 'zod';
+import { Doc } from './convex/_generated/dataModel';
+import { Blogs } from './convex/schema';
 
 export const BlogSchema = z.object({
-    source: zid("sources"),
-    title: z.string(),
-    link: z.string(),
-    description: z.string().optional(),
-    pubDate: z.string().optional(),
-    content: z.string().optional(),
-    categories: z.array(z.string()).optional(),
-    author: z.string().optional(),
-  });
+  source: zid("sources"),
+  title: z.string(),
+  link: z.string(),
+  description: z.string().optional(),
+  pubDate: z.string().optional(),
+  content: z.string().optional(),
+  categories: z.array(z.string()).optional(),
+  author: z.string().optional(),
+});
 
 export type BlogType = z.infer<typeof BlogSchema>;
 

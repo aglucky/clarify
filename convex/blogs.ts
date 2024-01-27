@@ -3,6 +3,7 @@ import { query, mutation } from "./_generated/server";
 import { z } from "zod";
 import { NoOp } from "convex-helpers/server/customFunctions";
 import { zCustomQuery, zCustomMutation } from "convex-helpers/server/zod";
+import { v } from "convex/values";
 
 const zQuery = zCustomQuery(query, NoOp);
 const zMutation = zCustomMutation(mutation, NoOp);
@@ -34,5 +35,13 @@ export const addZodBlog = zMutation({
       });
   
       return newBlogId;
+    },
+  });
+
+export const retrieveBlogs = query({
+  args: {num: v.number()},
+
+handler: async (ctx, { num }) => {
+      return await ctx.db.query("blogs").take(num);
     },
   });
