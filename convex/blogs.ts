@@ -8,6 +8,13 @@ import { v } from "convex/values";
 const zQuery = zCustomQuery(query, NoOp);
 const zMutation = zCustomMutation(mutation, NoOp);
 
+export const getBlog = query({
+  args: { id: v.id("blogs") },
+  handler: async (ctx, args) => {
+    return await ctx.db.get(args.id);
+  },
+});
+
 export const checkIfNewBlog = zQuery({
   args: { blog: BlogSchema },
   handler: async (ctx, args) => {
