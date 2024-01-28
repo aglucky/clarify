@@ -5,7 +5,6 @@ import { useQuery } from "convex/react";
 import { Id } from "../../../convex/_generated/dataModel";
 import { api } from "../../../convex/_generated/api";
 import React, { useState, useEffect, useRef } from "react";
-import { Readability } from "@mozilla/readability";
 
 export default function Home() {
     const pathname = usePathname();
