@@ -11,21 +11,6 @@ export default function Home() {
     const pathname = usePathname();
     const id = pathname?.split("/")[2] as Id<"blogs">;
     const blog = useQuery(api.blogs.getBlog, { id: id });
-    const [iframeSrc, setIframeSrc] = useState<string>("");
-    const iframeRef = useRef<HTMLIFrameElement>(null);
-
-    useEffect(() => {
-        if (blog && blog.content) {
-            const doc = new DOMParser().parseFromString(blog.content, "text/html");
-            const reader = new Readability(doc);
-            const article = reader.parse();
-            if (article?.content) {
-                const blob = new Blob([article.content], { type: 'text/html' });
-                const blobUrl = URL.createObjectURL(blob);
-                setIframeSrc(blobUrl);
-            }
-        }
-    }, [blog]);
 
     return (
         <main>
@@ -34,8 +19,14 @@ export default function Home() {
             {blog ? (
               <div>
                 <h2>{blog.title}</h2>
-                {/* Render the processed content in an iframe */}
-                <iframe ref={iframeRef} src={iframeSrc} title="Readable Content" width="100%" height="600px" />
+                <iframe
+                  srcDoc={blog.content}
+                  title="Blog Content"
+                  frameBorder="0"
+                  width="100%"
+                  height="600px"
+                  sandbox="allow-same-origin allow-scripts allow-popups allow-forms"
+                ></iframe>
               </div>
             ) : (
               <div>No blog content available.</div>

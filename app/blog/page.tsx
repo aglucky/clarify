@@ -4,7 +4,7 @@ export default function Home() {
 
   return (
     <main>
-      <p>TO BE IMPLEMENED</p>
+      <p>TO BE IMPLEMENTED</p>
     </main>
   );
 }
