@@ -21,7 +21,7 @@ export const Blogs = Table("blogs", {
     link: v.string(),
     description: v.optional(v.string()),
     pubDate: v.string(),
-    content: v.string(),
+    content: v.optional(v.string()),
     author: v.optional(v.string()),
     categories: v.optional(v.array(v.string())),
 })

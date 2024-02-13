@@ -15,7 +15,9 @@ import type {
   FunctionReference,
 } from "convex/server";
 import type * as actions from "../actions.js";
+import type * as blog_migrations from "../blog_migrations.js";
 import type * as blogs from "../blogs.js";
+import type * as lib_migrations from "../lib/migrations.js";
 import type * as sources from "../sources.js";
 
 /**
@@ -28,7 +30,9 @@ import type * as sources from "../sources.js";
  */
 declare const fullApi: ApiFromModules<{
   actions: typeof actions;
+  blog_migrations: typeof blog_migrations;
   blogs: typeof blogs;
+  "lib/migrations": typeof lib_migrations;
   sources: typeof sources;
 }>;
 export declare const api: FilterApi<
